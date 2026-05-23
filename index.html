@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>🪔 Chanakiya Dharma AI</title>
+  <title>🪔 Dharma AI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -77,7 +77,7 @@
 <body onload="playBell()">
 
 <div class="box">
-  <h1>🪔 Chanakiya Dharma AI</h1>
+  <h1>🪔 Dharma AI</h1>
 
   <p>Ask about Dharma, Karma, Krishna, Hanuman, Gita</p>
 
@@ -87,9 +87,9 @@
 
   <button onclick="playBell(); startVoice();">🔔 🎤 Speak</button>
 
-  <button onclick="playBell(); askAI();">Ask Chanakiya</button>
+  <button onclick="playBell(); askAI();">Ask Dharma AI</button>
 
-  <div id="answer">Welcome to Chanakiya Dharma AI</div>
+  <div id="answer">Welcome to Dharma AI</div>
 </div>
 
 <script>
@@ -110,7 +110,7 @@ async function askAI(){
     return;
   }
 
-  ans.innerText = "Chanakiya is thinking...";
+  ans.innerText = "Dharma AI is thinking...";
 
   try{
     const response = await fetch(WORKER_URL, {
