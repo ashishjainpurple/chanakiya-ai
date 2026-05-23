@@ -2,22 +2,18 @@
 <html>
 <head>
   <title>🪔 Dharma AI</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-
     body{
       margin:0;
       font-family:Arial;
       text-align:center;
       color:white;
       overflow:hidden;
-
       background:
-      radial-gradient(circle at top,#ffd700 0%,transparent 25%),
-      linear-gradient(160deg,#4b0000,#120018,#000);
-
+        radial-gradient(circle at top,#ffd700 0%,transparent 25%),
+        linear-gradient(160deg,#4b0000,#120018,#000);
       padding:20px;
     }
 
@@ -81,214 +77,116 @@
     }
 
     @keyframes fall{
-
-      0%{
-        transform:translateY(-10vh) rotate(0deg);
-      }
-
-      100%{
-        transform:translateY(110vh) rotate(360deg);
-      }
+      0%{ transform:translateY(-10vh) rotate(0deg); }
+      100%{ transform:translateY(110vh) rotate(360deg); }
     }
-
   </style>
 </head>
 
 <body onload="playBell()">
 
 <div class="box">
+  <h1>🪔 Dharma AI</h1>
 
-<h1>🪔 Dharma AI</h1>
+  <p>Ask about Dharma, Karma, Krishna, Hanuman, Gita</p>
 
-<p>
-Ask about Dharma, Karma, Krishna, Hanuman, Gita
-</p>
+  <textarea id="question" placeholder="Ask your Dharma question..."></textarea>
 
-<textarea
-id="question"
-placeholder="Ask your Dharma question...">
-</textarea>
+  <br>
 
-<br>
+  <button onclick="playBell(); startVoice();">🔔 🎤 Speak</button>
 
-<button onclick="playBell(); startVoice();">
-🔔 🎤 Speak
-</button>
+  <button onclick="playBell(); askAI();">Ask Dharma AI</button>
 
-<button onclick="playBell(); askAI();">
-Ask Dharma AI
-</button>
-
-<div id="answer">
-Welcome to Dharma AI
-</div>
-
+  <div id="answer">Welcome to Dharma AI</div>
 </div>
 
 <script>
-
-/* =========================
-   GOOGLE SCRIPT BACKEND
-========================= */
-
 const WORKER_URL =
 "https://script.google.com/macros/s/AKfycbyoCVCY-zYrOKrAHQAr0V40uE1bkiylHSUQCAdLf2a-U241IpvfJzx1OHBrzeMPA2m0uw/exec";
 
-/* =========================
-   PLAY TEMPLE BELL
-========================= */
-
 function playBell(){
-
-  const bell =
-  new Audio(
-  "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
-  );
-
+  const bell = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
   bell.volume = 1;
-
   bell.play().catch(()=>{});
 }
 
-/* =========================
-   ASK AI
-========================= */
-
-async function askAI(){
-
-  const q =
-  document.getElementById("question")
-  .value
-  .trim();
-
-  const ans =
-  document.getElementById("answer");
+function askAI(){
+  const q = document.getElementById("question").value.trim();
+  const ans = document.getElementById("answer");
 
   if(!q){
-
-    ans.innerText =
-    "Please ask a Dharma question.";
-
+    ans.innerText = "Please ask a Dharma question.";
     return;
   }
 
-  ans.innerText =
-  "Dharma AI is thinking...";
+  ans.innerText = "Dharma AI is thinking...";
 
-  try{
-
-    const response =
-    await fetch(
-      WORKER_URL,
-      {
-        method:"POST",
-
-        body:JSON.stringify({
-          question:q
-        })
-      }
-    );
-
-    const data =
-    await response.json();
-
-    console.log(data);
-
-    const reply =
-    data.answer ||
-    "No answer received.";
-
-    ans.innerText = reply;
-
-    speak(reply);
-
-  }catch(err){
-
-    ans.innerText =
-    "Connection Error:\n" +
-    err.message;
+  const oldScript = document.getElementById("jsonpScript");
+  if(oldScript){
+    oldScript.remove();
   }
+
+  const script = document.createElement("script");
+  script.id = "jsonpScript";
+  script.src =
+    WORKER_URL +
+    "?q=" +
+    encodeURIComponent(q) +
+    "&callback=handleAIResponse";
+
+  document.body.appendChild(script);
 }
 
-/* =========================
-   SPEAK ANSWER
-========================= */
+function handleAIResponse(data){
+  const reply = data.answer || "No answer received.";
+  document.getElementById("answer").innerText = reply;
+  speak(reply);
+}
 
 function speak(text){
-
   speechSynthesis.cancel();
 
-  const s =
-  new SpeechSynthesisUtterance(text);
-
+  const s = new SpeechSynthesisUtterance(text);
   s.lang = "hi-IN";
-
   s.rate = 0.9;
 
   speechSynthesis.speak(s);
 }
 
-/* =========================
-   VOICE INPUT
-========================= */
-
 function startVoice(){
-
   const SpeechRecognition =
-  window.SpeechRecognition ||
-  window.webkitSpeechRecognition;
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
 
   if(!SpeechRecognition){
-
-    alert(
-      "Use Chrome browser."
-    );
-
+    alert("Use Chrome browser.");
     return;
   }
 
-  const rec =
-  new SpeechRecognition();
-
+  const rec = new SpeechRecognition();
   rec.lang = "hi-IN";
-
   rec.start();
 
-  rec.onresult =
-  function(e){
-
+  rec.onresult = function(e){
     document.getElementById("question").value =
-    e.results[0][0].transcript;
+      e.results[0][0].transcript;
 
     askAI();
-  }
+  };
 }
 
-/* =========================
-   FLOWERS
-========================= */
-
 for(let i=0;i<30;i++){
-
-  const f =
-  document.createElement("div");
+  const f = document.createElement("div");
 
   f.className = "flower";
-
   f.innerHTML = "🌸";
-
-  f.style.left =
-  Math.random()*100 + "vw";
-
-  f.style.animationDuration =
-  (5 + Math.random()*5) + "s";
-
-  f.style.fontSize =
-  (15 + Math.random()*20) + "px";
+  f.style.left = Math.random()*100 + "vw";
+  f.style.animationDuration = (5 + Math.random()*5) + "s";
+  f.style.fontSize = (15 + Math.random()*20) + "px";
 
   document.body.appendChild(f);
 }
-
 </script>
 
 </body>
